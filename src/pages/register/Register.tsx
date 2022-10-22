@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import cls from "./register.module.scss"
 import { AiOutlineEyeInvisible, AiOutlineEye, AiOutlineUser, AiFillLock } from "react-icons/ai";
 import { Link, useNavigate } from "react-router-dom";
-import { AlertInterFace, UserInterface } from "../../types/interface";
+import { UserInterface } from "../../types/interface";
 import { AxiosResponse } from "axios";
 import { http } from "../../server/server"
 import CustomizedSnackbars from "../../components/snackbar/CustomizedSnackbars";
@@ -11,7 +11,7 @@ import CustomizedSnackbars from "../../components/snackbar/CustomizedSnackbars";
 
 interface IRegister {
     success: boolean,
-    
+
 }
 
 
@@ -19,17 +19,26 @@ interface IRegister {
 const Register: React.FC = () => {
     const [showEye, setShowEye] = useState<boolean>(false);
     let navigate = useNavigate();
-    const [alert, setAlert] = useState<AlertInterFace>({
-        showAlert:false,
-        msg:""
+    const [alert, setAlert] = useState<any>({
+        showAlert: false,
+        msg: ""
     });
- 
+
 
     const [user, setuser] = useState<UserInterface>({
 
         password: "",
         email: '',
     })
+
+
+
+    const close = (msg: string, showAlert: boolean) => {
+        setAlert({
+            showAlert: showAlert,
+            msg: msg,
+        })
+    }
 
 
 
@@ -45,30 +54,50 @@ const Register: React.FC = () => {
         e.preventDefault();
 
 
-        const { data }: AxiosResponse<IRegister> = (await http.post(
-            "/auth/sign-up",
-            { email: user.email, password: user.password },
-
-            
-        ))
-
-        const { data: email }: AxiosResponse<any> = (await http.get(
-            `auth/verification-email/${user.email}`,
-
-        ))
 
 
 
-        if(email.success === true && email.message === "Tasdiqlandi"){
-                  
-            navigate('/')
+
+
+        try {
+
+            const { data }: AxiosResponse<IRegister> = (await http.post(
+                "/auth/sign-up",
+                { email: user.email, password: user.password },
+
+
+            ))
+
+            const { data: email }: AxiosResponse<any> = (await http.get(
+                `auth/verification-email/${user.email}`,
+
+            ))
+
+
+
+            if (data.success === true && email.message === "Tasdiqlandi") {
+                navigate('/')
+            }
+
+
+
+
+
+        }
+        catch (error: any) {
+            setAlert({ msg: error.response.data.errors[0].msg, showAlert: true })
         }
 
-        
 
-        else if (data.success === false){
-            setAlert({ msg: "Bunday Email Oldindan Mavjud", showAlert:true})
-        }
+
+
+
+
+
+
+
+
+
 
 
 
@@ -78,17 +107,17 @@ const Register: React.FC = () => {
             email: '',
         })
 
-     
 
 
-       
-       
+
+
+
     }
 
 
 
 
-    return ( 
+    return (
         <div className={cls.register}>
             <h3>Sign Up</h3>
 
@@ -131,7 +160,7 @@ const Register: React.FC = () => {
                 }  >Sign Up</button>
             </form>
 
-            <CustomizedSnackbars alert= {alert}/>
+            <CustomizedSnackbars alert={alert} close={close} />
 
         </div>
     )

@@ -9,7 +9,9 @@ interface Props{
     alert: {
         showAlert: boolean,
         msg:string,
-    }
+    };
+
+    close:(msg:string, close: boolean) => void
 }
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
@@ -20,8 +22,8 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
 });
 
 export default function CustomizedSnackbars(props:Props) {
-  const [open, setOpen] = React.useState(props.alert.showAlert);
-
+  
+  const {alert, close} = props;
   
 
   const handleClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
@@ -29,7 +31,7 @@ export default function CustomizedSnackbars(props:Props) {
       return;
     }
 
-    setOpen(false);
+    close("", false);
   };
 
   return (
@@ -37,9 +39,9 @@ export default function CustomizedSnackbars(props:Props) {
       {/* <Button variant="outlined" onClick={handleClick}>
         Open success snackbar
       </Button> */}
-      <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+      <Snackbar open={alert.showAlert} autoHideDuration={3000} onClose={handleClose}>
         <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
-        {props.alert.msg}
+        {alert.msg}
         </Alert>
       </Snackbar>
       
